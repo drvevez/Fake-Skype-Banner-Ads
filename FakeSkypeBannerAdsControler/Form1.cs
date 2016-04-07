@@ -66,8 +66,11 @@ namespace NoSkypeBannerAds
         [DllImport("kernel32", CharSet = CharSet.Ansi, ExactSpelling = true, SetLastError = true)]
         static extern IntPtr GetProcAddress(IntPtr hModule, string procName);
 
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        [DllImport("user32.dll", CharSet = CharSet.Ansi)]
         static extern IntPtr SendMessage(IntPtr hWnd, UInt32 Msg, IntPtr wParam, IntPtr lParam);
+
+        [DllImport("user32.dll", CharSet = CharSet.Ansi)]
+        static extern IntPtr PostMessage(IntPtr hWnd, UInt32 Msg, IntPtr wParam, IntPtr lParam);
 
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
         static extern uint GetPrivateProfileString(string lpAppName, string lpKeyName, string lpDefault, StringBuilder lpReturnedString, uint nSize, string lpFileName);
@@ -245,8 +248,10 @@ namespace NoSkypeBannerAds
         /// <param name="m">message received</param>
         protected override void WndProc(ref Message m)
         {
+          
             if (m.Msg == WM_COPYDATA)
             {
+                base.WndProc(ref m);
                 var msg = (COPYDATASTRUCT)Marshal.PtrToStructure(m.LParam, typeof(COPYDATASTRUCT));
                 // a message arrives 
                 if (msg.dwData == (IntPtr)(WM_USER + 2))
@@ -261,7 +266,6 @@ namespace NoSkypeBannerAds
                     }
                     newLog(Marshal.PtrToStringAnsi(msg.lpData));
                 }
-
             }
             base.WndProc(ref m);
         }

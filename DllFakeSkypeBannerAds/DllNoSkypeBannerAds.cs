@@ -305,15 +305,23 @@ namespace DllFakeSkypeBannerAds
 
         static void SendMsg(String msg)
         {
+
+
+            
             if (hWndControl != IntPtr.Zero)
             {
+                SendMessage(hWndControl, (uint)cmsg.allmsg.WM_USER + 10, IntPtr.Zero, IntPtr.Zero);
+
                 var c = new COPYDATASTRUCT();
                 c.lpData = Marshal.StringToHGlobalAnsi(msg);
                 c.cbData = msg.Length + 1;
                 c.dwData = (IntPtr)(cmsg.allmsg.WM_USER + 2);
                 IntPtr retval = Marshal.AllocHGlobal(Marshal.SizeOf(c));
                 Marshal.StructureToPtr(c, retval, false);
-                SendMessage(hWndControl, (uint)cmsg.allmsg.WM_COPYDATA, IntPtr.Zero, retval);
+                
+                var r = SendMessage(hWndControl, (uint)cmsg.allmsg.WM_COPYDATA, IntPtr.Zero, retval);
+                
+
                 Marshal.FreeHGlobal(c.lpData);
                 Marshal.FreeHGlobal(retval);
             }
@@ -359,8 +367,11 @@ namespace DllFakeSkypeBannerAds
         [DllImport("user32.dll", SetLastError = true)]
         static extern IntPtr GetWindow(IntPtr hWnd, uint uCmd);
 
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        [DllImport("user32.dll", CharSet = CharSet.Ansi)]
         static extern IntPtr SendMessage(IntPtr hWnd, UInt32 Msg, IntPtr wParam, IntPtr lParam);
+
+        [DllImport("user32.dll", CharSet = CharSet.Ansi)]
+        static extern IntPtr PostMessage(IntPtr hWnd, UInt32 Msg, IntPtr wParam, IntPtr lParam);
 
         [DllImport("user32.dll")]
         static extern IntPtr GetWindowDC(IntPtr hWnd);
